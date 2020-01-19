@@ -8,12 +8,17 @@ endif
 
 call plug#begin('~/.config/nvim/plugged')
 Plug 'tpope/vim-surround'
+Plug 'vimlab/split-term.vim'
+Plug 'tpope/vim-fugitive' 
 Plug 'machakann/vim-highlightedyank'
 Plug 'scrooloose/nerdcommenter'
+Plug 'airblade/vim-rooter'
 Plug 'mg979/vim-visual-multi'
 Plug 'liuchengxu/vista.vim'
+Plug 'jiangmiao/auto-pairs'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'scrooloose/nerdtree'
+Plug 'tomasiser/vim-code-dark'
 Plug 'jreybert/vimagit'
 Plug 'vimwiki/vimwiki'
 Plug 'bling/vim-airline'
@@ -21,8 +26,12 @@ Plug 'kovetskiy/sxhkd-vim'
 Plug 'chriskempson/base16-vim'
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'arcticicestudio/nord-vim'
-Plug 'easymotion/vim-easymotion'
+Plug 'justinmk/vim-sneak'
 Plug 'sevko/vim-nand2tetris-syntax'
+" Plug 'jeaye/color_coded'
+" Plug 'octol/vim-cpp-enhanced-highlight'
+" Plug 'sheerun/vim-polyglot'
+" Plug 'arakashic/chromatica.nvim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 call plug#end()
@@ -35,11 +44,23 @@ set go=a
 set mouse=a
 set nohlsearch
 set clipboard+=unnamedplus
-
+" Quick-save
+nmap <leader>w :w<CR>
 "" Colors
-" let base16colorspace=256  " Access colors present in 256 colorspace
+let base16colorspace=256  " Access colors present in 256 colorspace
+" deal with colors
+if !has('gui_running')
+  set t_Co=256
+endif
+if (match($TERM, "-256color") != -1) && (match($TERM, "screen-256color") == -1)
+  " screen does not (yet) support truecolor
+  set termguicolors
+endif
 set background=dark
 colorscheme base16-gruvbox-dark-hard
+" colorscheme codedark
+" let g:airline_theme = 'base16-gruvbox-dark-hard'
+let base16colorspace=256
 hi Normal ctermbg=NONE
 " Get syntax
 " Some basics:
@@ -47,10 +68,24 @@ hi Normal ctermbg=NONE
 	set nocompatible
 	filetype plugin on
 	syntax on
+    " let g:chromatica#enable_at_startup=1
     " colorscheme nord
 	set encoding=utf-8
 	set number relativenumber
-
+    " Permanent undo
+    set undodir=~/.vimdid
+    set undofile
+" Jump to start and end of line using the home row keys
+map H ^
+map L $
+" Move by line
+nnoremap j gj
+nnoremap k gk
+" terminal emu settings
+let g:neoterm_default_mod='belowright' " open terminal in bottom split
+let g:neoterm_size=16 " terminal split size
+" <leader><leader> toggles between buffers
+nnoremap <leader><leader> <c-^>
 " Enable autocompletion:
 	set wildmode=longest,list,full
 " Disables automatic commenting on newline:
@@ -69,31 +104,18 @@ hi Normal ctermbg=NONE
 	map <C-k> <C-w>k
 	map <C-l> <C-w>l
 
-" easy mothin config
-"*****************************************************
-" <Leader>f{char} to move to {char}
-map  <Leader>f <Plug>(easymotion-bd-f)
-nmap <Leader>f <Plug>(easymotion-overwin-f)
-
-" s{char}{char} to move to {char}{char}
-nmap s <Plug>(easymotion-overwin-f2)
-
-" Move to line
-map <Leader>L <Plug>(easymotion-bd-jk)
-nmap <Leader>L <Plug>(easymotion-overwin-line)
-
-" Move to word
-map  <Leader>w <Plug>(easymotion-bd-w)
-nmap <Leader>w <Plug>(easymotion-overwin-w)
-" Gif config
-map <Leader>l <Plug>(easymotion-lineforward)
-map <Leader>j <Plug>(easymotion-j)
-map <Leader>k <Plug>(easymotion-k)
-map <Leader>h <Plug>(easymotion-linebackward)
-"************************************************************
+" " sneak
+let g:sneak#s_next = 1
+" auto pairs
+let g:AutoPairsMultilineClose = 0
+let g:AutoPairsMultilineClose = 0
 " fzf"
 nnoremap <C-p> :FZF<cr>
-nmap / :BLines<cr>
+nmap <Leader>/ :BLines<cr>
+nmap <leader>; :Buffers<CR>
+" Left and right can switch buffers
+nnoremap <left> :bp<CR>
+nnoremap <right> :bn<CR>
 let g:vista_fzf_preview = ['right:50%']
 
 " [Tags] Command to generate tags file
@@ -106,7 +128,6 @@ nnoremap <Leader>r :Rg<Space>
 " Coc Vim
 let g:coc_global_extensions = [
   \ 'coc-snippets',
-  \ 'coc-pairs',
   \ ]
 " if hidden is not set, TextEdit might fail.
 set hidden
